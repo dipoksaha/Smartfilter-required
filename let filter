@@ -1,0 +1,45 @@
+function custom_required_field_script() {
+    // Only add this script on the specific page with the slug 'practice2/'
+    if (strpos($_SERVER['REQUEST_URI'], 'practice2/') !== false) {
+        // Create a nonce for security
+        $nonce = wp_create_nonce('custom_nonce');
+
+        ?>
+        <script type="text/javascript">
+            jQuery(document).ready(function($) {
+                // Function to check the state of the fields and toggle the button's disabled state
+                function toggleApplyButton() {
+                    var allFieldsFilled = true;
+
+                    // Check if select filter is filled
+                    if ($('.jet-smart-filters-select .jet-select__control').val() === '') {
+                        allFieldsFilled = false;
+                    }
+
+                    // Check if search filters are filled
+                    $('.jet-smart-filters-search .jet-search-filter__input').each(function() {
+                        if ($(this).val() === '') {
+                            allFieldsFilled = false;
+                        }
+                    });
+
+                    // Enable or disable the apply button based on the fields' state
+                    $('.jet-smart-filters-apply-button .apply-filters__button').prop('disabled', !allFieldsFilled);
+                }
+
+                // Initial check on page load
+                toggleApplyButton();
+
+                // Check the state of the fields whenever they change
+                $('.jet-smart-filters-select .jet-select__control, .jet-smart-filters-search .jet-search-filter__input').on('change keyup', function() {
+                    toggleApplyButton();
+                });
+
+                // You can use the nonce here in AJAX requests or other data submissions
+                var customNonce = '<?php echo $nonce; ?>';
+            });
+        </script>
+        <?php
+    }
+}
+add_action('wp_footer', 'custom_required_field_script');
